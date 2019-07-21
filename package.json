@@ -1,0 +1,35 @@
+{
+  "name": "gendiff",
+  "version": "0.0.1",
+  "description": "Compares two configuration files and shows a difference.",
+  "main": "dist/bin/index.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/grom194/frontend-project-lvl2.git"
+  },
+  "author": "Boris Koshelev",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/grom194/frontend-project-lvl2/issues"
+  },
+  "scripts": {
+    "build": "NODE_ENV=production babel src --out-dir dist --source-maps inline"
+  },
+  "homepage": "https://github.com/grom194/frontend-project-lvl2#readme",
+  "dependencies": {
+    "@babel/core": "^7.2.2",
+    "@babel/cli": "^7.2.3",
+    "@babel/node": "^7.2.2",
+    "@babel/plugin-proposal-pipeline-operator": "^7.3.2",
+    "@babel/preset-env": "^7.3.1",
+    "commander": "^2.20.0"
+  },
+  "devDependencies": {
+    "eslint": "^5.12.1",
+    "eslint-config-airbnb-base": "^13.1.0",
+    "eslint-plugin-babel": "^5.3.0",
+    "eslint-plugin-lodash-fp": "^2.2.0-a1",
+    "babel-eslint": "^10.0.1",
+    "eslint-plugin-import": "^2.15.0"
+  }
+}

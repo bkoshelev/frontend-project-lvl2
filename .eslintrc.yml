@@ -1,0 +1,14 @@
+---
+plugins:
+  - babel
+env:
+  node: true
+
+parser: babel-eslint
+
+extends:
+  - "airbnb-base"
+  - "plugin:lodash-fp/recommended"
+
+rules:
+  no-console: 0
