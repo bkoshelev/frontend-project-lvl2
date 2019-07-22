@@ -18,6 +18,7 @@
   ],
   "scripts": {
     "babel-node": "babel-node",
+    "eslint": "eslint src",
     "build": "NODE_ENV=production babel src --out-dir dist --source-maps inline",
     "prepublishOnly": "npm run build"
   },

@@ -9,5 +9,5 @@ program
   .description(packageData.description)
   .version(packageData.version)
   .option('-f, --format [type]', 'Output format')
-  .action((firstConfig, secondConfig) => {})
+  .action(() => {})
   .parse(process.argv);
