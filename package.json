@@ -21,7 +21,10 @@
     "collectCoverageFrom": [
       "src/**/*.js"
     ],
-    "coverageDirectory": "coverage"
+    "coverageDirectory": "coverage",
+    "coverageReporters": [
+      "lcov"
+    ]
   },
   "scripts": {
     "test": "jest",
