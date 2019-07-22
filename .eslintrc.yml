@@ -12,6 +12,7 @@ extends:
   - "airbnb-base"
   - "plugin:jest/recommended"
   - "plugin:lodash-fp/recommended"
+  - "prettier"
 
 rules:
   no-console: 0
