@@ -19,12 +19,9 @@
     "testEnvironment": "node",
     "collectCoverage": true,
     "collectCoverageFrom": [
-      "src/**/*.{js}"
+      "src/**/*.js"
     ],
-    "coverageDirectory": "coverage",
-    "coverageReporters": [
-      "lcov"
-    ]
+    "coverageDirectory": "coverage"
   },
   "scripts": {
     "test": "jest",
