@@ -16,7 +16,15 @@
     "dist"
   ],
   "jest": {
-    "testEnvironment": "node"
+    "testEnvironment": "node",
+    "collectCoverage": true,
+    "collectCoverageFrom": [
+      "src/**/*.{js}"
+    ],
+    "coverageDirectory": "coverage",
+    "coverageReporters": [
+      "lcov"
+    ]
   },
   "scripts": {
     "test": "jest",
