@@ -23,3 +23,14 @@ test("test yaml compare", () => {
   );
   expect(gendiff(pathToFile1, pathToFile2)).toBe(output);
 });
+
+test("test ini compare", () => {
+  const pathToFixtures = "/__fixtures__/testPack3/";
+  const pathToFile1 = path.join(__dirname, pathToFixtures, "before.ini");
+  const pathToFile2 = path.join(__dirname, pathToFixtures, "after.ini");
+  const output = readFileSync(
+    path.join(__dirname, pathToFixtures, "output.txt"),
+    "utf8"
+  );
+  expect(gendiff(pathToFile1, pathToFile2)).toBe(output);
+});

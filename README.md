@@ -13,3 +13,7 @@
 ### Yaml Files
 
 [![asciicast](https://asciinema.org/a/Fw4oiaYleJMQqvQqdVWJ6jUE8.svg)](https://asciinema.org/a/Fw4oiaYleJMQqvQqdVWJ6jUE8)
+
+### Ini files
+
+[![asciicast](https://asciinema.org/a/7w6IuSikVzVv2se26wYN2MD1M.svg)](https://asciinema.org/a/7w6IuSikVzVv2se26wYN2MD1M)

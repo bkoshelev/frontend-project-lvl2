@@ -1,9 +1,11 @@
 import yaml from "js-yaml";
+import { parse } from "ini";
 
 const parseFile = ({ fileExt, content }) => {
   const parsers = {
     ".json": parseContent => JSON.parse(parseContent),
-    ".yaml": parseContent => yaml.safeLoad(parseContent)
+    ".yaml": parseContent => yaml.safeLoad(parseContent),
+    ".ini": parseContent => parse(parseContent)
   };
   return parsers[fileExt](content);
 };
