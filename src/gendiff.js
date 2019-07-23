@@ -60,7 +60,7 @@ const generateAstDiff = ([beforeObj, afterObj], level = 1) => {
   return ast;
 };
 
-const gendiff = (pathToFile1, pathToFile2, format = "json") => {
+const gendiff = (pathToFile1, pathToFile2, format = "default") => {
   const diffOutput =
     [pathToFile1, pathToFile2]
     |> readFiles

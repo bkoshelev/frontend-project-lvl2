@@ -26,8 +26,12 @@
 
 ### -f, --format
 
-#### json (defautl)
+#### default
 
 #### plain
 
 [![asciicast](https://asciinema.org/a/TCyWwpZ8noPv0aHl79nqrUxYO.svg)](https://asciinema.org/a/TCyWwpZ8noPv0aHl79nqrUxYO)
+
+#### JSON
+
+[![asciicast](https://asciinema.org/a/Lyc0fLW49oN6iHt5yvUrvr8EK.svg)](https://asciinema.org/a/Lyc0fLW49oN6iHt5yvUrvr8EK)

@@ -11,14 +11,14 @@ program
   .arguments("<secondConfig>")
   .description(packageData.description)
   .version(packageData.version)
-  .option("-f, --format [type]", "Output format", "json")
+  .option("-f, --format [type]", "Output format", "default")
   .action((firstConfig, secondConfig, { format }) => {
     [firstConfig, secondConfig].forEach(path => {
       if (!existsSync(path)) {
         throw Error(`file ${path} not exist`);
       }
     });
-    if (!["json", "plain"].includes(format)) {
+    if (!["json", "plain", "default"].includes(format)) {
       throw Error("invalid format argument");
     }
 

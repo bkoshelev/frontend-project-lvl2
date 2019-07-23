@@ -1,43 +1,60 @@
-import { isObject } from "lodash/fp";
+import { isObject, isString, trim } from "lodash/fp";
 
 const generateJsonFormatOutput = ast => {
   let typesAction = () => {};
   let addValuesList = () => {};
 
-  const addValue = (key, value, level, tab, delimiter = "") =>
-    `${" ".repeat(level * 4 + tab)}${delimiter}${key}: ${
-      isObject(value) ? typesAction.object(value, level + 1) : value
-    }\n`;
-
-  addValuesList = (children = [], level = 0) => {
+  addValuesList = (children = [], path = "") => {
     return children.reduce((acc, value) => {
-      return acc + typesAction[value.type](value, level);
-    }, "");
+      return [...acc, ...typesAction[value.type](value, path)];
+    }, []);
+  };
+
+  const formatValue = value => {
+    if (isObject(value)) return "[complex value]";
+    if (isString(value)) return `'${value}'`;
+    return value;
+  };
+
+  const genPath = (path, key) => {
+    return `${path}${path.length === 0 ? "" : "."}${key}`;
   };
 
   typesAction = {
-    equal: ({ value, key }, level) => addValue(key, value, level, 4),
-    added: ({ newValue, key }, level) =>
-      addValue(key, newValue, level, 2, "+ "),
-    removed: ({ oldValue, key }, level) =>
-      addValue(key, oldValue, level, 2, "- "),
-    changed: ({ oldValue, newValue, key }, level) =>
-      addValue(key, oldValue, level, 2, "- ") +
-      addValue(key, newValue, level, 2, "+ "),
-    object: (obj, level) =>
-      `{\n${Object.entries(obj).map(([key, value]) =>
-        typesAction.objectValue({ key, value }, level)
-      )}${" ".repeat(level * 4)}}`,
-    objectValue: ({ value, key }, level) => addValue(key, value, level, 4),
-    children: ({ value, key }, level) =>
-      `${" ".repeat(level * 4 + 4)}${key}: {\n${addValuesList(
-        value,
-        level + 1
-      )}${" ".repeat(level * 4 + 4)}}\n`
+    equal: () => [],
+    added: ({ newValue, key }, path) => [
+      {
+        key: genPath(path, key),
+        details: `Property '${genPath(
+          path,
+          key
+        )}' was added with value: ${formatValue(newValue)}`
+      }
+    ],
+    removed: ({ key }, path) => [
+      {
+        key: genPath(path, key),
+        details: `Property '${genPath(path, key)}' was removed`
+      }
+    ],
+
+    changed: ({ oldValue, newValue, key }, path) => [
+      {
+        key: genPath(path, key),
+        details: `Property '${genPath(
+          path,
+          key
+        )}' was updated. From ${formatValue(oldValue)} to ${formatValue(
+          newValue
+        )}`
+      }
+    ],
+    children: ({ value, key }, path) => addValuesList(value, genPath(path, key))
   };
 
-  const output = `{\n${addValuesList(ast)}}`;
-
+  const output = {
+    diffs: addValuesList(ast)
+  };
   return output;
 };
 
