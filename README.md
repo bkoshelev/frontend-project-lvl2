@@ -21,3 +21,13 @@
 ### deep recursive structure
 
 [![asciicast](https://asciinema.org/a/mHa8hjT7TCg5gm4jGFrNSVFtj.svg)](https://asciinema.org/a/mHa8hjT7TCg5gm4jGFrNSVFtj)
+
+## Flags
+
+### -f, --format
+
+#### json (defautl)
+
+#### plain
+
+[![asciicast](https://asciinema.org/a/TCyWwpZ8noPv0aHl79nqrUxYO.svg)](https://asciinema.org/a/TCyWwpZ8noPv0aHl79nqrUxYO)
