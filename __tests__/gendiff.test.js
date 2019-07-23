@@ -67,3 +67,14 @@ test("test deep ini diff", () => {
   );
   expect(gendiff(pathToFile1, pathToFile2)).toBe(output);
 });
+
+test("test deep json diff with plain format", () => {
+  const pathToFixtures = "/__fixtures__/testPack7/";
+  const pathToFile1 = path.join(__dirname, pathToFixtures, "before.json");
+  const pathToFile2 = path.join(__dirname, pathToFixtures, "after.json");
+  const output = readFileSync(
+    path.join(__dirname, pathToFixtures, "output.txt"),
+    "utf8"
+  );
+  expect(gendiff(pathToFile1, pathToFile2, "plain")).toBe(output);
+});
