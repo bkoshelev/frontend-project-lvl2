@@ -17,3 +17,7 @@
 ### Ini files
 
 [![asciicast](https://asciinema.org/a/7w6IuSikVzVv2se26wYN2MD1M.svg)](https://asciinema.org/a/7w6IuSikVzVv2se26wYN2MD1M)
+
+### deep recursive structure
+
+[![asciicast](https://asciinema.org/a/mHa8hjT7TCg5gm4jGFrNSVFtj.svg)](https://asciinema.org/a/mHa8hjT7TCg5gm4jGFrNSVFtj)
