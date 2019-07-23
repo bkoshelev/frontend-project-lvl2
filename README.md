@@ -6,4 +6,10 @@
 
 ## Usage
 
+### JSON files
+
 [![asciicast](https://asciinema.org/a/SDs5SjDecG574UIBm6Pojoyad.svg)](https://asciinema.org/a/SDs5SjDecG574UIBm6Pojoyad)
+
+### Yaml Files
+
+[![asciicast](https://asciinema.org/a/Fw4oiaYleJMQqvQqdVWJ6jUE8.svg)](https://asciinema.org/a/Fw4oiaYleJMQqvQqdVWJ6jUE8)

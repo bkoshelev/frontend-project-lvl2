@@ -1,15 +1,18 @@
 import { readFileSync } from "fs";
 import { has } from "lodash/fp";
-import { resolve } from "path";
+import { resolve, extname } from "path";
+
+import parseFilesContent from "./parsers";
 
 const readFiles = ([pathToFile1, pathToFile2]) => [
-  readFileSync(resolve(pathToFile1)),
-  readFileSync(resolve(pathToFile2))
-];
-
-const parseFilesContent = ([file1Content, file2Content]) => [
-  JSON.parse(file1Content),
-  JSON.parse(file2Content)
+  {
+    fileExt: extname(pathToFile1),
+    content: readFileSync(resolve(pathToFile1), "utf8")
+  },
+  {
+    fileExt: extname(pathToFile2),
+    content: readFileSync(resolve(pathToFile2), "utf8")
+  }
 ];
 
 const generateDiffOutput = ([beforeJson, afterJson]) => {
