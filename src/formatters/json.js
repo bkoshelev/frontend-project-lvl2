@@ -1,4 +1,4 @@
-import { isObject, isString, trim } from "lodash/fp";
+import { isObject, isString } from "lodash/fp";
 
 const generateJsonFormatOutput = ast => {
   let typesAction = () => {};
