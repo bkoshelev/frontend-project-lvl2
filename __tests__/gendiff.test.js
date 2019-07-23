@@ -2,7 +2,7 @@ import { readFileSync } from "fs";
 import path from "path";
 import gendiff from "../src/gendiff";
 
-test("test json compare", () => {
+test("test flat json diff", () => {
   const pathToFixtures = "/__fixtures__/testPack1/";
   const pathToFile1 = path.join(__dirname, pathToFixtures, "before.json");
   const pathToFile2 = path.join(__dirname, pathToFixtures, "after.json");
@@ -13,7 +13,7 @@ test("test json compare", () => {
   expect(gendiff(pathToFile1, pathToFile2)).toBe(output);
 });
 
-test("test yaml compare", () => {
+test("test flat yaml diff", () => {
   const pathToFixtures = "/__fixtures__/testPack2/";
   const pathToFile1 = path.join(__dirname, pathToFixtures, "before.yaml");
   const pathToFile2 = path.join(__dirname, pathToFixtures, "after.yaml");
@@ -24,8 +24,41 @@ test("test yaml compare", () => {
   expect(gendiff(pathToFile1, pathToFile2)).toBe(output);
 });
 
-test("test ini compare", () => {
+test("test flat ini diff", () => {
   const pathToFixtures = "/__fixtures__/testPack3/";
+  const pathToFile1 = path.join(__dirname, pathToFixtures, "before.ini");
+  const pathToFile2 = path.join(__dirname, pathToFixtures, "after.ini");
+  const output = readFileSync(
+    path.join(__dirname, pathToFixtures, "output.txt"),
+    "utf8"
+  );
+  expect(gendiff(pathToFile1, pathToFile2)).toBe(output);
+});
+
+test("test deep json diff", () => {
+  const pathToFixtures = "/__fixtures__/testPack4/";
+  const pathToFile1 = path.join(__dirname, pathToFixtures, "before.json");
+  const pathToFile2 = path.join(__dirname, pathToFixtures, "after.json");
+  const output = readFileSync(
+    path.join(__dirname, pathToFixtures, "output.txt"),
+    "utf8"
+  );
+  expect(gendiff(pathToFile1, pathToFile2)).toBe(output);
+});
+
+test("test deep yaml diff", () => {
+  const pathToFixtures = "/__fixtures__/testPack5/";
+  const pathToFile1 = path.join(__dirname, pathToFixtures, "before.yaml");
+  const pathToFile2 = path.join(__dirname, pathToFixtures, "after.yaml");
+  const output = readFileSync(
+    path.join(__dirname, pathToFixtures, "output.txt"),
+    "utf8"
+  );
+  expect(gendiff(pathToFile1, pathToFile2)).toBe(output);
+});
+
+test("test deep ini diff", () => {
+  const pathToFixtures = "/__fixtures__/testPack6/";
   const pathToFile1 = path.join(__dirname, pathToFixtures, "before.ini");
   const pathToFile2 = path.join(__dirname, pathToFixtures, "after.ini");
   const output = readFileSync(
