@@ -1,18 +1,16 @@
 import yaml from "js-yaml";
 import { parse } from "ini";
+import { extname } from "path";
 
-const parseFile = ({ fileExt, content }) => {
+const parseFile = ({ name, content }) => {
   const parsers = {
     ".json": parseContent => JSON.parse(parseContent),
     ".yaml": parseContent => yaml.safeLoad(parseContent),
     ".ini": parseContent => parse(parseContent)
   };
-  return parsers[fileExt](content);
+  return parsers[extname(name)](content);
 };
 
-const parseFilesContent = ([file1, file2]) => [
-  parseFile(file1),
-  parseFile(file2)
-];
+const parseFilesContent = files => files.map(file => parseFile(file));
 
 export default parseFilesContent;
