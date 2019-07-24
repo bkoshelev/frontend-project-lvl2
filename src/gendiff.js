@@ -24,7 +24,7 @@ const generateAstDiff = ([beforeObj, afterObj], level = 1) => {
     const newAcc = [...acc];
     if (isObject(beforeObj[key]) && isObject(afterObj[key])) {
       newAcc.push({
-        type: "children",
+        type: "list",
         key,
         value: generateAstDiff([beforeObj[key], afterObj[key]], level + 1)
       });

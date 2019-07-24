@@ -12,8 +12,8 @@ program
   .description(packageData.description)
   .version(packageData.version)
   .option("-f, --format [type]", "Output format", "default")
-  .action((firstConfig, secondConfig, { format }) => {
-    [firstConfig, secondConfig].forEach(path => {
+  .action((path1, path2, { format }) => {
+    [path1, path2].forEach(path => {
       if (!existsSync(path)) {
         throw Error(`file ${path} not exist`);
       }
@@ -22,7 +22,7 @@ program
       throw Error("invalid format argument");
     }
 
-    const output = gendiff(firstConfig, secondConfig, format);
+    const output = gendiff(path1, path2, format);
     console.log(output);
   })
   .parse(process.argv);

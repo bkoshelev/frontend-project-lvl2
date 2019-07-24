@@ -95,7 +95,7 @@ test("test parse deep equal", () => {
     },
     {
       key: "b",
-      type: "children",
+      type: "list",
       value: [
         {
           key: "c",
@@ -185,7 +185,7 @@ test("test parse deep changed", () => {
     },
     {
       key: "b",
-      type: "children",
+      type: "list",
       value: [
         {
           key: "c",
