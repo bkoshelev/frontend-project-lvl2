@@ -10,11 +10,11 @@
 
 [![asciicast](https://asciinema.org/a/SDs5SjDecG574UIBm6Pojoyad.svg)](https://asciinema.org/a/SDs5SjDecG574UIBm6Pojoyad)
 
-### Yaml Files
+### .yaml Files
 
 [![asciicast](https://asciinema.org/a/Fw4oiaYleJMQqvQqdVWJ6jUE8.svg)](https://asciinema.org/a/Fw4oiaYleJMQqvQqdVWJ6jUE8)
 
-### Ini files
+### .ini files
 
 [![asciicast](https://asciinema.org/a/7w6IuSikVzVv2se26wYN2MD1M.svg)](https://asciinema.org/a/7w6IuSikVzVv2se26wYN2MD1M)
 
@@ -26,9 +26,10 @@
 
 ### -f, --format
 
-#### default
+#### Default
+...
 
-#### plain
+#### Plain
 
 [![asciicast](https://asciinema.org/a/TCyWwpZ8noPv0aHl79nqrUxYO.svg)](https://asciinema.org/a/TCyWwpZ8noPv0aHl79nqrUxYO)
 
