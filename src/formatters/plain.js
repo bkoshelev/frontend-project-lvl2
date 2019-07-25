@@ -1,33 +1,31 @@
-import { trim, has } from 'lodash/fp';
+import { trim } from 'lodash/fp';
 import { genPath, formatValue } from '../utils';
 
-const generatePlainFormatOutput = (ast) => {
-  const addProperties = (props = [], currentPath = '') => {
-    const typesAction = {
-      equal: () => '',
-      added: ({ newValue, key }, path) => `Property '${genPath(path, key)}' was added with value: ${formatValue(
-        newValue,
-      )}\n`,
-      removed: ({ key }, path) => `Property '${genPath(path, key)}' was removed\n`,
-
-      changed: ({ oldValue, newValue, key }, path) => `Property '${genPath(path, key)}' was updated. From ${formatValue(
-        oldValue,
-      )} to ${formatValue(newValue)}\n`,
-      list: ({ value, key }, path) => addProperties(value, genPath(path, key)),
-    };
-
-    const addProp = (prop, pathToProp) => {
-      const defaultType = '';
-      return has(prop.type, typesAction)
-        ? typesAction[prop.type](prop, pathToProp)
-        : defaultType;
-    };
-
-    return props.reduce((acc, prop) => acc + addProp(prop, currentPath), '');
+const generatePlainFormatOutputText = (structure) => {
+  console.log(structure);
+  const outputLineByTypeList = {
+    unchanged: () => '',
+    added: ({ value2, propKey }, path) => `Property '${genPath(path, propKey)}' was added with value: ${formatValue(
+      value2,
+    )}\n`,
+    removed: ({ propKey }, path) => `Property '${genPath(path, propKey)}' was removed\n`,
+    changed: ({ value1, value2, propKey }, path) => `Property '${genPath(path, propKey)}' was updated. From ${formatValue(
+      value1,
+    )} to ${formatValue(value2)}\n`,
   };
 
-  const output = addProperties(ast);
-  return trim(output);
+  const genOutputLines = (nodes, currentPath = '') => {
+    if (nodes.length === 0) return '';
+    return nodes.map((node) => {
+      const newOutputLine = outputLineByTypeList[node.nodeType](node, currentPath);
+      const newPath = genPath(currentPath, node.propKey);
+      const childrenLines = genOutputLines(node.children, newPath);
+      return newOutputLine + childrenLines;
+    }).join('');
+  };
+
+  const outputText = genOutputLines(structure);
+  return trim(outputText);
 };
 
-export default generatePlainFormatOutput;
+export default generatePlainFormatOutputText;

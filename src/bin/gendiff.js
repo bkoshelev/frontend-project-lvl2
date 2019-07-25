@@ -3,8 +3,9 @@
 import program from 'commander';
 import { existsSync } from 'fs';
 import packageData from '../../package.json';
-
 import gendiff from '../gendiff';
+
+const outputFormatOptionPossibleValues = ['json', 'plain', 'default'];
 
 program
   .arguments('<firstConfig>')
@@ -12,17 +13,17 @@ program
   .description(packageData.description)
   .version(packageData.version)
   .option('-f, --format [type]', 'Output format', 'default')
-  .action((path1, path2, { format }) => {
-    [path1, path2].forEach((path) => {
-      if (!existsSync(path)) {
-        throw Error(`file ${path} not exist`);
+  .action((pathToFile1, pathToFile2, { format: outputFormatOption }) => {
+    [pathToFile1, pathToFile2].forEach((pathToFile) => {
+      if (!existsSync(pathToFile)) {
+        throw Error(`file ${pathToFile} not exist`);
       }
     });
-    if (!['json', 'plain', 'default'].includes(format)) {
-      throw Error('invalid format argument');
+    if (!outputFormatOptionPossibleValues.includes(outputFormatOption)) {
+      throw Error(`invalid format option, try this: ${outputFormatOptionPossibleValues.join(', ')}`);
     }
 
-    const output = gendiff(path1, path2, format);
-    console.log(output);
+    const outputText = gendiff(pathToFile1, pathToFile2, outputFormatOption);
+    console.log(outputText);
   })
   .parse(process.argv);
