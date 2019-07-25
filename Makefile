@@ -1,10 +1,11 @@
 install:
-	npm install
+	npm run install
 start:
-	npm run babel-node -- src/bin/gendiff.js
+	npx babel-node -- src/bin/gendiff.js
 publish: 
-	npm publish --dry-run 
+	npm run publish --dry-run 
 lint:
-	npm run eslint
+	npx eslint src
+	npx eslint __tests__/*.test.js
 test:
 	npm run test
