@@ -3,9 +3,8 @@ install:
 start:
 	npx babel-node -- src/bin/gendiff.js
 publish: 
-	npm run publish --dry-run 
+	npm publish --dry-run 
 lint:
-	npx eslint src
-	npx eslint __tests__/*.test.js
+	npx eslint .
 test:
-	npm run test
+	npm test

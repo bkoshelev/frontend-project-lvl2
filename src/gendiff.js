@@ -1,22 +1,18 @@
-import { readFileSync } from "fs";
-import { has, isObject, uniq } from "lodash/fp";
-import sortBy from "lodash/fp/sortBy";
-import { resolve, basename } from "path";
+import { readFileSync } from 'fs';
+import { has, isObject, uniq } from 'lodash/fp';
+import sortBy from 'lodash/fp/sortBy';
+import { resolve, basename } from 'path';
 
-import parseFilesContent from "./parsers";
-import generateOutput from "./formatters";
+import parseFilesContent from './parsers';
+import generateOutput from './formatters';
 
-const readFiles = paths =>
-  paths.map(path => {
-    return {
-      name: basename(path),
-      content: readFileSync(resolve(path), "utf8")
-    };
-  });
+const readFiles = paths => paths.map(path => ({
+  name: basename(path),
+  content: readFileSync(resolve(path), 'utf8'),
+}));
 
 const generateAstDiff = ([beforeObj, afterObj], level = 1) => {
-  const keys =
-    [...Object.keys(beforeObj), ...Object.keys(afterObj)]
+  const keys = [...Object.keys(beforeObj), ...Object.keys(afterObj)]
     |> uniq
     |> sortBy(el => el);
 
@@ -24,34 +20,34 @@ const generateAstDiff = ([beforeObj, afterObj], level = 1) => {
     const newAcc = [...acc];
     if (isObject(beforeObj[key]) && isObject(afterObj[key])) {
       newAcc.push({
-        type: "list",
+        type: 'list',
         key,
-        value: generateAstDiff([beforeObj[key], afterObj[key]], level + 1)
+        value: generateAstDiff([beforeObj[key], afterObj[key]], level + 1),
       });
     } else if (has(key, beforeObj) && !has(key, afterObj)) {
       newAcc.push({
-        type: "removed",
+        type: 'removed',
         key,
-        oldValue: beforeObj[key]
+        oldValue: beforeObj[key],
       });
     } else if (!has(key, beforeObj) && has(key, afterObj)) {
       newAcc.push({
-        type: "added",
+        type: 'added',
         key,
-        newValue: afterObj[key]
+        newValue: afterObj[key],
       });
     } else if (beforeObj[key] === afterObj[key]) {
       newAcc.push({
-        type: "equal",
+        type: 'equal',
         key,
-        value: beforeObj[key]
+        value: beforeObj[key],
       });
     } else if (beforeObj[key] !== afterObj[key]) {
       newAcc.push({
-        type: "changed",
+        type: 'changed',
         key,
         oldValue: beforeObj[key],
-        newValue: afterObj[key]
+        newValue: afterObj[key],
       });
     }
 
@@ -60,9 +56,8 @@ const generateAstDiff = ([beforeObj, afterObj], level = 1) => {
   return ast;
 };
 
-const gendiff = (pathToFile1, pathToFile2, format = "default") => {
-  const diffOutput =
-    [pathToFile1, pathToFile2]
+const gendiff = (pathToFile1, pathToFile2, format = 'default') => {
+  const diffOutput = [pathToFile1, pathToFile2]
     |> readFiles
     |> parseFilesContent
     |> generateAstDiff

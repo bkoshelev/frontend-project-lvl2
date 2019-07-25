@@ -1,23 +1,23 @@
-import { has } from "lodash/fp";
-import { genPath, formatValue } from "../utils";
+import { has } from 'lodash/fp';
+import { genPath, formatValue } from '../utils';
 
-const generateJsonFormatOutput = ast => {
-  const addProperties = (props = [], currentPath = "") => {
+const generateJsonFormatOutput = (ast) => {
+  const addProperties = (props = [], currentPath = '') => {
     const typesAction = {
       added: ({ newValue, key }, path) => [
         {
           key: genPath(path, key),
           details: `Property '${genPath(
             path,
-            key
-          )}' was added with value: ${formatValue(newValue)}`
-        }
+            key,
+          )}' was added with value: ${formatValue(newValue)}`,
+        },
       ],
       removed: ({ key }, path) => [
         {
           key: genPath(path, key),
-          details: `Property '${genPath(path, key)}' was removed`
-        }
+          details: `Property '${genPath(path, key)}' was removed`,
+        },
       ],
 
       changed: ({ oldValue, newValue, key }, path) => [
@@ -25,13 +25,13 @@ const generateJsonFormatOutput = ast => {
           key: genPath(path, key),
           details: `Property '${genPath(
             path,
-            key
+            key,
           )}' was updated. From ${formatValue(oldValue)} to ${formatValue(
-            newValue
-          )}`
-        }
+            newValue,
+          )}`,
+        },
       ],
-      list: ({ value, key }, path) => addProperties(value, genPath(path, key))
+      list: ({ value, key }, path) => addProperties(value, genPath(path, key)),
     };
 
     const addProp = (prop, pathToProp) => {
@@ -41,13 +41,11 @@ const generateJsonFormatOutput = ast => {
         : defaultType;
     };
 
-    return props.reduce((acc, value) => {
-      return [...acc, ...addProp(value, currentPath)];
-    }, []);
+    return props.reduce((acc, value) => [...acc, ...addProp(value, currentPath)], []);
   };
 
   const output = {
-    diffs: addProperties(ast)
+    diffs: addProperties(ast),
   };
   return output;
 };

@@ -16,15 +16,7 @@
     "dist"
   ],
   "jest": {
-    "testEnvironment": "node",
-    "collectCoverage": true,
-    "collectCoverageFrom": [
-      "src/**/*.js"
-    ],
-    "coverageDirectory": "coverage",
-    "coverageReporters": [
-      "lcov"
-    ]
+    "testEnvironment": "node"
   },
   "scripts": {
     "test": "jest",
@@ -51,7 +43,6 @@
     "babel-jest": "^24.0.0",
     "eslint": "^5.12.1",
     "eslint-config-airbnb-base": "^13.1.0",
-    "eslint-config-prettier": "^6.0.0",
     "eslint-plugin-babel": "^5.3.0",
     "eslint-plugin-import": "^2.15.0",
     "eslint-plugin-jest": "^22.1.3",
