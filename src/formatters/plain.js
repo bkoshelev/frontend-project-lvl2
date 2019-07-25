@@ -1,14 +1,5 @@
-import { isObject, isString, trim, has } from "lodash/fp";
-
-const formatValue = value => {
-  if (isObject(value)) return "[complex value]";
-  if (isString(value)) return `'${value}'`;
-  return value;
-};
-
-const genPath = (path, key) => {
-  return `${path}${path.length === 0 ? "" : "."}${key}`;
-};
+import { trim, has } from "lodash/fp";
+import { genPath, formatValue } from "../utils";
 
 const generatePlainFormatOutput = ast => {
   const addProperties = (props = [], currentPath = "") => {
