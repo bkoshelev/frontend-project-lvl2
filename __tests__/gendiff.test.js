@@ -1,6 +1,6 @@
 import { readFileSync } from "fs";
 import path from "path";
-import gendiff from "../src/gendiff";
+import gendiff from "../src";
 
 test("test flat json diff", () => {
   const pathToFixtures = "/__fixtures__/testPack1/";
