@@ -1,53 +1,54 @@
-import { has } from 'lodash/fp';
 import { genPath, formatValue } from '../utils';
 
-const generateJsonFormatOutput = (ast) => {
-  const addProperties = (props = [], currentPath = '') => {
-    const typesAction = {
-      added: ({ newValue, key }, path) => [
+const generateJsonFormatOutputText = (structure) => {
+  const genOutputLines = (nodes, currentPath = '') => {
+    const outputLineByTypeList = {
+      unchanged: () => [],
+      added: ({ value2, propKey }, path) => [
         {
-          key: genPath(path, key),
+          key: genPath(path, propKey),
           details: `Property '${genPath(
             path,
-            key,
-          )}' was added with value: ${formatValue(newValue)}`,
+            propKey,
+          )}' was added with value: ${formatValue(value2)}`,
         },
       ],
-      removed: ({ key }, path) => [
+      removed: ({ propKey }, path) => [
         {
-          key: genPath(path, key),
-          details: `Property '${genPath(path, key)}' was removed`,
+          key: genPath(path, propKey),
+          details: `Property '${genPath(path, propKey)}' was removed`,
         },
       ],
 
-      changed: ({ oldValue, newValue, key }, path) => [
+      changed: ({ value1, value2, propKey }, path) => [
         {
-          key: genPath(path, key),
+          key: genPath(path, propKey),
           details: `Property '${genPath(
             path,
-            key,
-          )}' was updated. From ${formatValue(oldValue)} to ${formatValue(
-            newValue,
+            propKey,
+          )}' was updated. From ${formatValue(value1)} to ${formatValue(
+            value2,
           )}`,
         },
       ],
-      list: ({ value, key }, path) => addProperties(value, genPath(path, key)),
+      nodeList: (node, pathToProp) => {
+        const outputLines = genOutputLines(node.children, genPath(pathToProp, node.propKey));
+        return outputLines;
+      },
     };
 
-    const addProp = (prop, pathToProp) => {
-      const defaultType = [];
-      return has(prop.type, typesAction)
-        ? typesAction[prop.type](prop, pathToProp)
-        : defaultType;
-    };
-
-    return props.reduce((acc, value) => [...acc, ...addProp(value, currentPath)], []);
+    if (nodes.length === 0) return '';
+    return nodes.reduce((currentLines, node) => {
+      const newOutputLine = outputLineByTypeList[node.nodeType](node, currentPath);
+      return [...currentLines, ...newOutputLine];
+    }, []);
   };
 
-  const output = {
-    diffs: addProperties(ast),
+  const outputText = {
+    diffs: genOutputLines(structure),
   };
-  return output;
+
+  return outputText;
 };
 
-export default generateJsonFormatOutput;
+export default generateJsonFormatOutputText;

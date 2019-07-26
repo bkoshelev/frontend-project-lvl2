@@ -12,48 +12,66 @@ const readFiles = filePaths => filePaths.map(filePath => ({
 }));
 
 const generateStructureDiffBetweenFiles = ([file1ContentObject, file2ContentObject]) => {
-  const identifyNodeType = (currentComparedObj1, currentcomparedObj2, currentObjPropKey) => {
+  const identifyNodeType = (comparedObj1, comparedObj2, objPropKey) => {
     const types = [
       {
         typeName: 'removed',
-        typeCondition: (obj1, obj2, objPropKey) => has(objPropKey, obj1) && !has(objPropKey, obj2),
+        typeCondition: (obj1, obj2, propKey) => has(propKey, obj1) && !has(propKey, obj2),
       },
       {
         typeName: 'added',
-        typeCondition: (obj1, obj2, objPropKey) => !has(objPropKey, obj1) && has(objPropKey, obj2),
+        typeCondition: (obj1, obj2, propKey) => !has(propKey, obj1) && has(propKey, obj2),
+      },
+      {
+        typeName: 'nodeList',
+        typeCondition: (obj1, obj2, propKey) => {
+          const isCondTrue = isObject(obj1[propKey]) && isObject(obj2[propKey]);
+          return isCondTrue;
+        },
       },
       {
         typeName: 'unchanged',
-        typeCondition: (obj1, obj2, objPropKey) => (obj1[objPropKey] === obj2[objPropKey]) || (isObject(obj1[objPropKey]) && isObject(obj2[objPropKey])),
+        typeCondition: (obj1, obj2, propKey) => (obj1[propKey] === obj2[propKey]),
       },
       {
         typeName: 'changed',
-        typeCondition: (obj1, obj2, objPropKey) => obj1[objPropKey] !== obj2[objPropKey],
+        typeCondition: (obj1, obj2, propKey) => obj1[propKey] !== obj2[propKey],
       },
     ];
-    const passTypeIndex = types.findIndex(({ typeCondition }) => typeCondition(currentComparedObj1, currentcomparedObj2, currentObjPropKey));
+
+    const passTypeIndex = types.findIndex(({ typeCondition }) => {
+      const isConditionTrue = typeCondition(comparedObj1, comparedObj2, objPropKey);
+      return isConditionTrue;
+    });
+
     return types[passTypeIndex].typeName;
   };
 
-  const generateStructureDiffBetweenObjects = (comparedObj1, comparedObj2) => {
+  const generateStructDiffBetweenObjects = (comparedObj1, comparedObj2) => {
     const allKeysInObjects = [...Object.keys(comparedObj1), ...Object.keys(comparedObj2)]
       |> uniq
       |> sortBy(key => key);
 
     const structure = allKeysInObjects.map((currentObjPropKey) => {
+      const obj1PropValue = comparedObj1[currentObjPropKey];
+      const obj2PropValue = comparedObj2[currentObjPropKey];
+
+      const nodeType = identifyNodeType(comparedObj1, comparedObj2, currentObjPropKey);
+
       const newNode = {
-        nodeType: identifyNodeType(comparedObj1, comparedObj2, currentObjPropKey),
+        nodeType,
         propKey: currentObjPropKey,
-        value1: comparedObj1[currentObjPropKey],
-        value2: comparedObj2[currentObjPropKey],
-        children: isObject(comparedObj1[currentObjPropKey]) && isObject(comparedObj2[currentObjPropKey])
-          ? generateStructureDiffBetweenObjects(comparedObj1[currentObjPropKey], comparedObj2[currentObjPropKey]) : [],
+        value1: obj1PropValue,
+        value2: obj2PropValue,
+        children: nodeType === 'nodeList'
+          ? generateStructDiffBetweenObjects(obj1PropValue, obj2PropValue) : [],
       };
       return newNode;
     });
     return structure;
   };
-  return generateStructureDiffBetweenObjects(file1ContentObject, file2ContentObject);
+
+  return generateStructDiffBetweenObjects(file1ContentObject, file2ContentObject);
 };
 
 const gendiff = (pathToFile1, pathToFile2, outputFormatOption = 'default') => {
@@ -66,4 +84,3 @@ const gendiff = (pathToFile1, pathToFile2, outputFormatOption = 'default') => {
 };
 
 export default gendiff;
-export { generateStructureDiffBetweenFiles };
