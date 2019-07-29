@@ -48,7 +48,7 @@ const generateJsonFormatOutputText = (structure) => {
     diffs: genOutputLines(structure),
   };
 
-  return outputText;
+  return JSON.stringify(outputText, undefined, 2);
 };
 
 export default generateJsonFormatOutputText;
