@@ -4,8 +4,8 @@ import program from 'commander';
 import { existsSync } from 'fs';
 import packageData from '../../package.json';
 import gendiff from '../gendiff';
+import { outputFormatOptionPossibleValues } from '../formatters';
 
-const outputFormatOptionPossibleValues = ['json', 'plain', 'default'];
 
 program
   .arguments('<firstConfig>')
@@ -19,8 +19,8 @@ program
         throw Error(`file ${pathToFile} not exist`);
       }
     });
-    if (!outputFormatOptionPossibleValues.includes(outputFormatOption)) {
-      throw Error(`invalid format option, try this: ${outputFormatOptionPossibleValues.join(', ')}`);
+    if (!Object.values(outputFormatOptionPossibleValues).includes(outputFormatOption)) {
+      throw Error(`invalid format option, try this: ${Object.values(outputFormatOptionPossibleValues).join(', ')}`);
     }
 
     const outputText = gendiff(pathToFile1, pathToFile2, outputFormatOption);
