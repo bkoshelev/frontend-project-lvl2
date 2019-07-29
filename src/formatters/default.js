@@ -37,12 +37,17 @@ const generateDefaultFormatOutputText = (structure) => {
         return propKeyToString + valueKeyToString;
       },
     };
+
     const closeBrace = `${' '.repeat(depthLevel * 4)}}`;
     const openBrace = '{';
+
+    if (nodes.length === 0) return openBrace + closeBrace;
+
     const propsText = nodes.map((node) => {
       const propText = outputPropByTypeList[node.nodeType](node, depthLevel);
       return propText;
     });
+
     const objectStyleText = [openBrace, ...propsText, closeBrace].join('\n');
     return objectStyleText;
   };

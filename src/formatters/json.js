@@ -37,7 +37,7 @@ const generateJsonFormatOutputText = (structure) => {
       },
     };
 
-    if (nodes.length === 0) return '';
+    if (nodes.length === 0) return [];
     return nodes.reduce((currentLines, node) => {
       const newOutputLine = outputLineByTypeList[node.nodeType](node, currentPath);
       return [...currentLines, ...newOutputLine];
