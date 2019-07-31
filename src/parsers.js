@@ -1,24 +1,20 @@
-import yaml from 'js-yaml';
-import { parse } from 'ini';
 import { extname } from 'path';
+import yaml from 'js-yaml';
+import { parse as parseIni } from 'ini';
+import { addNewParser, parseFile } from './store';
 
+addNewParser('.json', (parseContent) => {
+  try {
+    return JSON.parse(parseContent);
+  } catch (error) {
+    throw new Error('invalid JSON file content');
+  }
+});
+addNewParser('.yaml', parseContent => yaml.safeLoad(parseContent));
+addNewParser('.ini', parseContent => parseIni(parseContent));
 
-const parseFile = ({ fileName, fileContent }) => {
-  const parsers = {
-    '.json': (parseContent) => {
-      try {
-        return JSON.parse(parseContent);
-      } catch (error) {
-        throw new Error('invalid JSON file content');
-      }
-    },
-    '.yaml': parseContent => yaml.safeLoad(parseContent),
-    '.ini': parseContent => parse(parseContent),
-  };
+const parseFileContents = files => files
+  .map(({ fileName, fileContent }) => parseFile(extname(fileName))(fileContent));
 
-  return parsers[extname(fileName)](fileContent);
-};
-
-const parseFileContents = files => files.map(file => parseFile(file));
 
 export default parseFileContents;

@@ -2,19 +2,13 @@ import generateJsonFormatOutput from './json';
 import generatePlainFormatOutput from './plain';
 import generateDefaultOutput from './default';
 
-const outputFormatOptionPossibleValues = {
-  defaultOption: 'default',
-  plain: 'plain',
-  json: 'json',
-};
+import { formatContent as generateOutput, getFormattersName, addNewFormatter } from '../store';
 
-const formatters = {
-  [outputFormatOptionPossibleValues.defaultOption]: generateDefaultOutput,
-  [outputFormatOptionPossibleValues.plain]: generatePlainFormatOutput,
-  [outputFormatOptionPossibleValues.json]: generateJsonFormatOutput,
-};
+addNewFormatter('defaultOption', generateDefaultOutput);
+addNewFormatter('plain', generatePlainFormatOutput);
+addNewFormatter('json', generateJsonFormatOutput);
 
-const generateOutput = format => formatters[format];
+const outputFormatOptionPossibleValues = getFormattersName();
 
-export default generateOutput;
 export { outputFormatOptionPossibleValues };
+export default generateOutput;
