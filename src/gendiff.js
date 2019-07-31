@@ -1,4 +1,6 @@
-import { readFileSync } from 'fs';
+import { readFileSync, existsSync } from 'fs';
+
+
 import { has, isObject, uniq } from 'lodash/fp';
 import sortBy from 'lodash/fp/sortBy';
 import { resolve, basename } from 'path';
@@ -6,10 +8,15 @@ import { resolve, basename } from 'path';
 import parseFileContentsToObject from './parsers';
 import generateOutputText from './formatters';
 
-const readFiles = filePaths => filePaths.map(filePath => ({
-  fileName: basename(filePath),
-  fileContent: readFileSync(resolve(filePath), 'utf8'),
-}));
+const readFiles = filePaths => filePaths.map((filePath) => {
+  if (!existsSync(filePath)) {
+    throw Error(`file ${filePath} not exist`);
+  }
+  return {
+    fileName: basename(filePath),
+    fileContent: readFileSync(resolve(filePath), 'utf8'),
+  };
+});
 
 const generateStructureDiffBetweenFiles = ([file1ContentObject, file2ContentObject]) => {
   const identifyNodeType = (comparedObj1, comparedObj2, objPropKey) => {
@@ -74,7 +81,7 @@ const generateStructureDiffBetweenFiles = ([file1ContentObject, file2ContentObje
   return generateStructDiffBetweenObjects(file1ContentObject, file2ContentObject);
 };
 
-const gendiff = (pathToFile1, pathToFile2, outputFormatOption = 'default') => {
+const gendiff = (pathToFile1, pathToFile2, outputFormatOption) => {
   const outputText = [pathToFile1, pathToFile2]
     |> readFiles
     |> parseFileContentsToObject
