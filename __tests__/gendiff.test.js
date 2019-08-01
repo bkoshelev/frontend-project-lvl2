@@ -17,24 +17,25 @@ import gendiff from '../src';
  *
  */
 
-test.each([
-  ['diff nested structures', 'json', 'json', 'defaultOption', 'nested_structure'],
-  ['nested structure', 'ini', 'ini', 'plain', 'nested_structure'],
-  ['nested structure', 'yaml', 'yaml', 'json', 'nested_structure'],
-  ['nested structure', 'yaml', 'yaml', 'json', 'nested_structure'],
-])('%#. test %s: diff <file1.%s , file2.%s> -f %s ',
-  (testName, file1Extension, file2Extension, outputFormat, fixtureFolder) => {
-    const pathToFixtures = `/__fixtures__/${fixtureFolder}/`;
-    const pathToFile1 = path.join(__dirname, pathToFixtures, 'inputData', file1Extension, `file1.${file1Extension}`);
-    const pathToFile2 = path.join(__dirname, pathToFixtures, 'inputData', file2Extension, `file2.${file2Extension}`);
-    const pathToOutputFile = path.join(__dirname, pathToFixtures, 'outputData', `${outputFormat}.txt`);
+describe('diff nested structures', () => {
+  test.each([
+    ['json', 'json', 'defaultOption', 'nested_structure'],
+    ['ini', 'ini', 'plain', 'nested_structure'],
+    ['yaml', 'yaml', 'json', 'nested_structure'],
+  ])('%#.  gendiff file1.%s file2.%s -f %s ',
+    (file1Extension, file2Extension, outputFormat, fixtureFolder) => {
+      const pathToFixtures = `/__fixtures__/${fixtureFolder}/`;
+      const pathToFile1 = path.join(__dirname, pathToFixtures, 'inputData', file1Extension, `file1.${file1Extension}`);
+      const pathToFile2 = path.join(__dirname, pathToFixtures, 'inputData', file2Extension, `file2.${file2Extension}`);
+      const pathToOutputFile = path.join(__dirname, pathToFixtures, 'outputData', `${outputFormat}.txt`);
 
-    const output = readFileSync(
-      pathToOutputFile,
-      'utf8',
-    );
+      const output = readFileSync(
+        pathToOutputFile,
+        'utf8',
+      );
 
-    const received = gendiff(pathToFile1, pathToFile2, outputFormat);
-    const expected = output;
-    expect(received).toBe(expected);
-  });
+      const received = gendiff(pathToFile1, pathToFile2, outputFormat);
+      const expected = output;
+      expect(received).toBe(expected);
+    });
+});
