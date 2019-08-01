@@ -5,8 +5,7 @@ import gendiff from '../src';
 /**
  * Описание
  *
- * testName // Название теста
- * fileExtension // расширение сравниваемых файлов
+ * fileExtension1, fileExtension2  // расширения сравниваемых файлов
  * outputFormat // выбранный тип форматирования результата выполнения
  * fixtureFolder // название папки с тестовыми данными
  *
