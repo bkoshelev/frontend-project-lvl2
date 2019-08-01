@@ -8,4 +8,6 @@ const formatValue = (value) => {
   return value;
 };
 
-export { genPath, formatValue };
+const sp = count => ' '.repeat(count);
+
+export { genPath, formatValue, sp };

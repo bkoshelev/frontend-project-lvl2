@@ -1,28 +1,35 @@
-import { trim } from 'lodash/fp';
+import { flattenDeep } from 'lodash/fp';
+import join from 'lodash/fp/join';
 import { genPath, formatValue } from '../utils';
 
+
 const generatePlainFormatOutputText = (structure) => {
-  const genOutputLines = (nodes, currentPath = '') => nodes.map((node) => {
-    const outputLineByTypeList = {
-      unchanged: () => '',
-      added: ({ value2, propKey }, path) => `Property '${genPath(path, propKey)}' was added with value: ${formatValue(
+  const formateNode = (node, path = '') => {
+    const types = {
+      unchanged: () => [],
+      added: ({ value2 }) => `Property '${path}' was added with value: ${formatValue(
         value2,
-      )}\n`,
-      removed: ({ propKey }, path) => `Property '${genPath(path, propKey)}' was removed\n`,
-      changed: ({ value1, value2, propKey }, pathToProp) => `Property '${genPath(pathToProp, propKey)}' was updated. From ${formatValue(
+      )}`,
+      removed: () => `Property '${path}' was removed`,
+      changed: ({ value1, value2 }) => `Property '${path}' was updated. From ${formatValue(
         value1,
-      )} to ${formatValue(value2)}\n`,
-      nodeList: ({ children }, pathToProp) => {
-        const outputLines = genOutputLines(children, genPath(pathToProp, node.propKey));
-        return outputLines;
+      )} to ${formatValue(value2)}`,
+      nodeList: ({ children }) => {
+        const text = children.map(child => formateNode(child, genPath(
+          path,
+          child.propKey,
+        )));
+        return text;
       },
     };
-    const newOutputLine = outputLineByTypeList[node.nodeType](node, currentPath);
-    return newOutputLine;
-  }).join('');
+    return types[node.nodeType](node);
+  };
 
-  const outputText = genOutputLines(structure);
-  return trim(outputText);
+  const outputText = structure
+    |> formateNode
+    |> flattenDeep
+    |> join('\n');
+  return outputText;
 };
 
 export default generatePlainFormatOutputText;

@@ -1,59 +1,56 @@
-import { isObject, trim } from 'lodash/fp';
+import map from 'lodash/fp/map';
+import { isObject, flattenDeep } from 'lodash/fp';
+import join from 'lodash/fp/join';
+import { sp } from '../utils';
 
-const convertObjectToObjectStyleText = (obj, depthLevel) => {
-  const closeBrace = `${' '.repeat(depthLevel * 4)}}`;
+const stringify = (obj, spaceIndent = '') => {
+  const getProp = (key, value, spaces) => (isObject(value)
+    ? `${spaces + sp(2)}${key}: ${stringify(value, spaces + sp(4))}`
+    : `${spaces + sp(2)}${key}: ${value}`);
+
+  if (Object.entries(obj).length === 0) {
+    return '{}';
+  }
   const openBrace = '{';
-  const propsText = Object.entries(obj).map(([key, value]) => {
-    const propText = `${' '.repeat(depthLevel * 4 + 4)}${key}: ${value}`;
-    return propText;
-  });
-  const objectStyleText = [openBrace, ...propsText, closeBrace].join('\n');
-  return objectStyleText;
+  const closeBrace = `${spaceIndent}}`;
+  const lines = obj
+    |> Object.entries
+    |> map(([key, value]) => getProp(key, value, spaceIndent));
+
+  return [openBrace, lines, closeBrace]
+    |> flattenDeep
+    |> join('\n');
 };
 
-const propValueToString = (value, depthLevel) => {
-  if (isObject(value)) return convertObjectToObjectStyleText(value, depthLevel + 1);
-  return value;
-};
-const propKeyToSting = (key, level, tab, delimiter = '') => `${' '.repeat(level * 4 + tab)}${delimiter}${key}: `;
+const formatObjectValue = obj => Object.entries(obj)
+  .reduce((acc, [key, value]) => ({ ...acc, [sp(2) + key]: value }), {});
 
-const keyOutputByNodeTypeList = {
-  unchanged: (propKey, level) => propKeyToSting(propKey, level, 4),
-  added: (propKey, level) => propKeyToSting(propKey, level, 2, '+ '),
-  removed: (propKey, level) => propKeyToSting(propKey, level, 2, '- '),
-};
-const propKeyToStingByNodeType = nodeType => keyOutputByNodeTypeList[nodeType];
-
-const generateDefaultFormatOutputText = (structure) => {
-  const convertNodesToObjectStyleText = (nodes, depthLevel = 0) => {
-    const outputPropByTypeList = {
-      unchanged: (node, level) => propKeyToStingByNodeType('unchanged')(node.propKey, level) + propValueToString(node.value1, level),
-      added: (node, level) => propKeyToStingByNodeType('added')(node.propKey, level) + propValueToString(node.value2, level),
-      removed: (node, level) => propKeyToStingByNodeType('removed')(node.propKey, level) + propValueToString(node.value1, level),
-      changed: (node, level) => `${outputPropByTypeList.removed(node, level)}\n${outputPropByTypeList.added(node, level)}`,
-      nodeList: (node, level) => {
-        const propKeyToString = keyOutputByNodeTypeList.unchanged(node.propKey, level);
-        const valueKeyToString = convertNodesToObjectStyleText(node.children, level + 1);
-        return propKeyToString + valueKeyToString;
-      },
-    };
-
-    const closeBrace = `${' '.repeat(depthLevel * 4)}}`;
-    const openBrace = '{';
-
-    if (nodes.length === 0) return openBrace + closeBrace;
-
-    const propsText = nodes.map((node) => {
-      const propText = outputPropByTypeList[node.nodeType](node, depthLevel);
-      return propText;
-    });
-
-    const objectStyleText = [openBrace, ...propsText, closeBrace].join('\n');
-    return objectStyleText;
+const formateNodeToObject = (node) => {
+  const formateNodeToObjectByType = {
+    unchanged: ({ value1, propKey }) => ({
+      [`  ${propKey}`]: isObject(value1) ? formatObjectValue(value1) : value1,
+    }),
+    added: ({ propKey, value2 }) => ({
+      [`+ ${propKey}`]: isObject(value2) ? formatObjectValue(value2) : value2,
+    }),
+    removed: ({ propKey, value1 }) => ({
+      [`- ${propKey}`]: isObject(value1) ? formatObjectValue(value1) : value1,
+    }),
+    changed: node => ({
+      ...formateNodeToObjectByType.removed(node),
+      ...formateNodeToObjectByType.added(node),
+    }),
+    nodeList: ({ children, propKey }) => {
+      const value = children
+        .reduce((acc, child) => ({ ...acc, ...formateNodeToObject(child) }), {});
+      return propKey === 'root' ? value : { [`  ${propKey}`]: value };
+    },
   };
-
-  const outputText = convertNodesToObjectStyleText(structure);
-  return trim(outputText);
+  return formateNodeToObjectByType[node.nodeType](node);
 };
+
+const generateDefaultFormatOutputText = structure => structure
+  |> formateNodeToObject
+  |> stringify;
 
 export default generateDefaultFormatOutputText;

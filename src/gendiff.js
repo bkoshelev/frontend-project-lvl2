@@ -78,7 +78,14 @@ const generateStructureDiffBetweenFiles = ([file1ContentObject, file2ContentObje
     return structure;
   };
 
-  return generateStructDiffBetweenObjects(file1ContentObject, file2ContentObject);
+  const root = {
+    nodeType: 'nodeList',
+    propKey: 'root',
+    value1: file1ContentObject,
+    value2: file2ContentObject,
+    children: generateStructDiffBetweenObjects(file1ContentObject, file2ContentObject),
+  };
+  return root;
 };
 
 const gendiff = (pathToFile1, pathToFile2, outputFormatOption) => {
@@ -89,5 +96,6 @@ const gendiff = (pathToFile1, pathToFile2, outputFormatOption) => {
     |> generateOutputText(outputFormatOption);
   return outputText;
 };
+
 
 export default gendiff;
