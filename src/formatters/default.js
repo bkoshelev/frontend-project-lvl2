@@ -36,9 +36,9 @@ const formateNodeToObject = (node) => {
     removed: ({ propKey, value1 }) => ({
       [`- ${propKey}`]: isObject(value1) ? formatObjectValue(value1) : value1,
     }),
-    changed: node => ({
-      ...formateNodeToObjectByType.removed(node),
-      ...formateNodeToObjectByType.added(node),
+    changed: changedTypeNode => ({
+      ...formateNodeToObjectByType.removed(changedTypeNode),
+      ...formateNodeToObjectByType.added(changedTypeNode),
     }),
     nodeList: ({ children, propKey }) => {
       const value = children
