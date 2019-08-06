@@ -2,31 +2,38 @@ import { flattenDeep } from 'lodash/fp';
 import { genPath, formatValue } from '../utils';
 
 
-const generateJsonFormatOutputText = (structure) => {
+const generateJsonFormatOutputText = (diffStructure) => {
   const genJson = key => details => ({ key, details });
-  const formatNode = (node, path = '') => {
-    const genJsonWithKey = genJson(path);
-    const types = {
-      unchanged: () => [],
-      added: ({ value2 }) => genJsonWithKey(`Property '${path}' was added with value: ${formatValue(value2)}`),
-      removed: () => genJsonWithKey(`Property '${path}' was removed`),
-      changed: ({ value1, value2 }) => genJsonWithKey(`Property '${path}' was updated. From ${formatValue(value1)} to ${formatValue(
-        value2,
-      )}`),
-      nodeList: ({ children }) => {
-        const json = children.map(child => formatNode(child, genPath(
-          path,
-          child.propKey,
-        )));
-        return json;
-      },
+
+  const formatNodes = (nodes, pathToNodes = '') => {
+    const getJsonByType = type => (pathToProp) => {
+      const genJsonWithKey = genJson(pathToProp);
+      const types = {
+        unchanged: () => [],
+        added: ({ value2 }) => genJsonWithKey(`Property '${pathToProp}' was added with value: ${formatValue(value2)}`),
+        removed: () => genJsonWithKey(`Property '${pathToProp}' was removed`),
+        changed: ({ value1, value2 }) => genJsonWithKey(`Property '${pathToProp}' was updated. From ${formatValue(value1)} to ${formatValue(
+          value2,
+        )}`),
+      };
+      return types[type];
     };
 
-    return types[node.nodeType](node);
+    return nodes.map((node) => {
+      const pathToNode = genPath(
+        pathToNodes,
+        node.propKey,
+      );
+      if (node.children.length > 0) {
+        const children = formatNodes(node.children, pathToNode);
+        return children;
+      }
+      return getJsonByType(node.nodeType)(pathToNode)(node);
+    });
   };
 
-  const diffs = structure
-    |> formatNode
+  const diffs = diffStructure
+    |> formatNodes
     |> flattenDeep;
 
   const outputText = {

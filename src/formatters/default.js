@@ -1,32 +1,38 @@
 import map from 'lodash/fp/map';
-import { isObject, flattenDeep } from 'lodash/fp';
+import {
+  isObject, flattenDeep, entries, size, mapKeys,
+} from 'lodash/fp';
 import join from 'lodash/fp/join';
 import { sp } from '../utils';
 
-const stringify = (obj, spaceIndent = '') => {
-  const getProp = (key, value, spaces) => (isObject(value)
-    ? `${spaces + sp(2)}${key}: ${stringify(value, spaces + sp(4))}`
-    : `${spaces + sp(2)}${key}: ${value}`);
-
-  if (Object.entries(obj).length === 0) {
-    return '{}';
-  }
+const stringify = (struct) => {
   const openBrace = '{';
-  const closeBrace = `${spaceIndent}}`;
-  const lines = obj
-    |> Object.entries
-    |> map(([key, value]) => getProp(key, value, spaceIndent));
 
-  return [openBrace, lines, closeBrace]
-    |> flattenDeep
-    |> join('\n');
+  const stringifyObj = (obj, spaceIndent = '') => {
+    const stringifyProp = (key, value, spaces) => (isObject(value)
+      ? `${spaces + sp(2)}${key}: ${stringifyObj(value, spaces + sp(4))}`
+      : `${spaces + sp(2)}${key}: ${value}`);
+
+    if (size(obj) === 0) {
+      return '{}';
+    }
+    const lines = obj
+      |> entries
+      |> map(([key, value]) => stringifyProp(key, value, spaceIndent));
+
+    const closeBrace = `${spaceIndent}}`;
+    return [openBrace, lines, closeBrace]
+      |> flattenDeep
+      |> join('\n');
+  };
+
+  return stringifyObj(struct);
 };
 
-const formatObjectValue = obj => Object.entries(obj)
-  .reduce((acc, [key, value]) => ({ ...acc, [sp(2) + key]: value }), {});
+const formatObjectValue = obj => mapKeys(key => sp(2) + key, obj);
 
-const formateNodeToObject = (node) => {
-  const formateNodeToObjectByType = {
+const formatNodesToObj = (nodes) => {
+  const types = {
     unchanged: ({ value1, propKey }) => ({
       [`  ${propKey}`]: isObject(value1) ? formatObjectValue(value1) : value1,
     }),
@@ -36,21 +42,25 @@ const formateNodeToObject = (node) => {
     removed: ({ propKey, value1 }) => ({
       [`- ${propKey}`]: isObject(value1) ? formatObjectValue(value1) : value1,
     }),
-    changed: changedTypeNode => ({
-      ...formateNodeToObjectByType.removed(changedTypeNode),
-      ...formateNodeToObjectByType.added(changedTypeNode),
-    }),
-    nodeList: ({ children, propKey }) => {
-      const value = children
-        .reduce((acc, child) => ({ ...acc, ...formateNodeToObject(child) }), {});
-      return propKey === 'root' ? value : { [`  ${propKey}`]: value };
+    changed: (changedTypeNode) => {
+      if (changedTypeNode.children.length > 0) {
+        const children = formatNodesToObj(changedTypeNode.children);
+        return { [`  ${changedTypeNode.propKey}`]: children };
+      }
+      return ({
+        ...types.removed(changedTypeNode),
+        ...types.added(changedTypeNode),
+      });
     },
   };
-  return formateNodeToObjectByType[node.nodeType](node);
+
+  return nodes.reduce((acc, node) => {
+    const text = types[node.nodeType](node);
+    return { ...acc, ...text };
+  }, {});
 };
 
-const generateDefaultFormatOutputText = structure => structure
-  |> formateNodeToObject
+const generateDefaultFormatOutputText = diffStructure => diffStructure
+  |> formatNodesToObj
   |> stringify;
-
 export default generateDefaultFormatOutputText;

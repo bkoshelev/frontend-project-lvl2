@@ -3,9 +3,9 @@ import join from 'lodash/fp/join';
 import { genPath, formatValue } from '../utils';
 
 
-const generatePlainFormatOutputText = (structure) => {
-  const formateNode = (node, path = '') => {
-    const types = {
+const generatePlainFormatOutputText = (diffStructure) => {
+  const formateNodes = (nodes, pathToNodes = '') => {
+    const types = path => ({
       unchanged: () => [],
       added: ({ value2 }) => `Property '${path}' was added with value: ${formatValue(
         value2,
@@ -14,19 +14,19 @@ const generatePlainFormatOutputText = (structure) => {
       changed: ({ value1, value2 }) => `Property '${path}' was updated. From ${formatValue(
         value1,
       )} to ${formatValue(value2)}`,
-      nodeList: ({ children }) => {
-        const text = children.map(child => formateNode(child, genPath(
-          path,
-          child.propKey,
-        )));
-        return text;
-      },
-    };
-    return types[node.nodeType](node);
+    });
+
+    return nodes.map((node) => {
+      const pathToNode = genPath(pathToNodes, node.propKey);
+      if (node.children.length > 0) {
+        return formateNodes(node.children, pathToNode);
+      }
+      return types(pathToNode)[node.nodeType](node);
+    });
   };
 
-  const outputText = structure
-    |> formateNode
+  const outputText = diffStructure
+    |> formateNodes
     |> flattenDeep
     |> join('\n');
   return outputText;
