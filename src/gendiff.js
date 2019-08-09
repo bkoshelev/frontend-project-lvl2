@@ -7,7 +7,7 @@ import {
 import sortBy from 'lodash/fp/sortBy';
 
 import parseFileContent from './parsers';
-import generateOutputText from './formatters';
+import genOutputText from './formatters';
 
 const readFile = (filePath) => {
   if (!existsSync(filePath)) {
@@ -21,14 +21,14 @@ const identifyNodeType = (obj1, obj2, propKey) => {
   if (!has(propKey, obj1) && has(propKey, obj2)) return 'added';
   if (obj1[propKey] === obj2[propKey]) return 'unchanged';
   if (obj1[propKey] !== obj2[propKey]) return 'changed';
-  throw new Error('genStructDiff: unknown node type');
+  throw new Error('genTreeDiff: unknown node type');
 };
 
-const generateStructDiffBetweenObjects = (comparedObj1, comparedObj2) => {
+const generateTreeDiffBetweenObjects = (comparedObj1, comparedObj2) => {
   const allKeysInObjects = union(keys(comparedObj1), keys(comparedObj2))
     |> sortBy(key => key);
 
-  const structure = allKeysInObjects.map((currentObjPropKey) => {
+  const tree = allKeysInObjects.map((currentObjPropKey) => {
     const nodeType = identifyNodeType(comparedObj1, comparedObj2, currentObjPropKey);
 
     const obj1PropValue = comparedObj1[currentObjPropKey];
@@ -40,21 +40,20 @@ const generateStructDiffBetweenObjects = (comparedObj1, comparedObj2) => {
       value1: obj1PropValue,
       value2: obj2PropValue,
       children: isObject(obj1PropValue) && isObject(obj2PropValue)
-        ? generateStructDiffBetweenObjects(obj1PropValue, obj2PropValue) : [],
+        ? generateTreeDiffBetweenObjects(obj1PropValue, obj2PropValue) : [],
     };
     return newNode;
   });
-  return structure;
+  return tree;
 };
 
-const generateStructureDiff = (obj1, obj2) => generateStructDiffBetweenObjects(obj1, obj2);
 
 const gendiff = (pathToFile1, pathToFile2, outputFormatOption) => {
   const obj1 = parseFileContent(extname(pathToFile1), readFile(pathToFile1));
   const obj2 = parseFileContent(extname(pathToFile2), readFile(pathToFile2));
 
-  const outputText = generateStructureDiff(obj1, obj2)
-    |> generateOutputText(outputFormatOption);
+  const outputText = generateTreeDiffBetweenObjects(obj1, obj2)
+    |> (_ => genOutputText(_, outputFormatOption));
   return outputText;
 };
 

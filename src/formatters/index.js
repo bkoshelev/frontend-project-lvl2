@@ -1,12 +1,18 @@
 import generateJsonFormatOutput from './json';
 import generatePlainFormatOutput from './plain';
-import generateDefaultOutput from './default';
+import generateNormalFormatOutput from './normal';
 
-import { formatContent as generateOutput, addNewFormatter } from '../store';
+const getFormatter = (diffTree, format = 'defaultOption') => {
+  switch (format) {
+    case 'normal':
+      return generateNormalFormatOutput(diffTree);
+    case 'plain':
+      return generatePlainFormatOutput(diffTree);
+    case 'json':
+      return generateJsonFormatOutput(diffTree);
+    default:
+      throw Error('invalid format option');
+  }
+};
 
-addNewFormatter('defaultOption', generateDefaultOutput);
-addNewFormatter('plain', generatePlainFormatOutput);
-addNewFormatter('json', generateJsonFormatOutput);
-
-
-export default generateOutput;
+export default getFormatter;

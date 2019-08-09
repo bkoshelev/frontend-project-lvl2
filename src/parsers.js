@@ -1,17 +1,22 @@
 import yaml from 'js-yaml';
 import { parse as parseIni } from 'ini';
-import { addNewParser, parseFile } from './store';
 
-addNewParser('.json', (parseContent) => {
-  try {
-    return JSON.parse(parseContent);
-  } catch (error) {
-    throw new Error('invalid JSON file content');
+const parseFileContent = (fileExt, parseContent) => {
+  switch (fileExt) {
+    case '.json': {
+      try {
+        return JSON.parse(parseContent);
+      } catch (error) {
+        throw new Error('invalid JSON file content');
+      }
+    }
+    case '.yaml':
+      return yaml.safeLoad(parseContent);
+    case '.ini':
+      return parseIni(parseContent);
+    default:
+      throw Error('invalid file extension');
   }
-});
-addNewParser('.yaml', parseContent => yaml.safeLoad(parseContent));
-addNewParser('.ini', parseContent => parseIni(parseContent));
+};
 
-const parseText = (fileExt, fileContent) => parseFile(fileExt)(fileContent);
-
-export default parseText;
+export default parseFileContent;

@@ -1,22 +1,30 @@
 import { flattenDeep } from 'lodash/fp';
 import { genPath, formatValue } from '../utils';
 
-
-const generateJsonFormatOutputText = (diffStructure) => {
+const generateJsonFormatOutputText = (diffTree) => {
   const genJson = key => details => ({ key, details });
 
   const formatNodes = (nodes, pathToNodes = '') => {
-    const getJsonByType = type => (pathToProp) => {
-      const genJsonWithKey = genJson(pathToProp);
-      const types = {
-        unchanged: () => [],
-        added: ({ value2 }) => genJsonWithKey(`Property '${pathToProp}' was added with value: ${formatValue(value2)}`),
-        removed: () => genJsonWithKey(`Property '${pathToProp}' was removed`),
-        changed: ({ value1, value2 }) => genJsonWithKey(`Property '${pathToProp}' was updated. From ${formatValue(value1)} to ${formatValue(
-          value2,
-        )}`),
-      };
-      return types[type];
+    const formatNode = (node, pathToNode) => {
+      const genJsonWithKey = genJson(pathToNode);
+      switch (node.nodeType) {
+        case 'unchanged':
+          return [];
+        case 'added': {
+          const { value2 } = node;
+          return genJsonWithKey(`Property '${pathToNode}' was added with value: ${formatValue(value2)}`);
+        }
+        case 'removed': {
+          return genJsonWithKey(`Property '${pathToNode}' was removed`);
+        }
+        case 'changed': {
+          const { value1, value2 } = node;
+          return genJsonWithKey(`Property '${pathToNode}' was updated. From ${formatValue(value1)} to ${formatValue(
+            value2,
+          )}`);
+        }
+        default: throw new Error('unknown node type');
+      }
     };
 
     return nodes.map((node) => {
@@ -25,14 +33,13 @@ const generateJsonFormatOutputText = (diffStructure) => {
         node.propKey,
       );
       if (node.children.length > 0) {
-        const children = formatNodes(node.children, pathToNode);
-        return children;
+        return formatNodes(node.children, pathToNode);
       }
-      return getJsonByType(node.nodeType)(pathToNode)(node);
+      return formatNode(node, pathToNode);
     });
   };
 
-  const diffs = diffStructure
+  const diffs = diffTree
     |> formatNodes
     |> flattenDeep;
 
