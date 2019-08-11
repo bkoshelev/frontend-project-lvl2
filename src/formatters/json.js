@@ -1,5 +1,13 @@
-import { flattenDeep } from 'lodash/fp';
-import { genPath, formatValue } from '../utils';
+import { flattenDeep, isObject, isString } from 'lodash/fp';
+
+
+const genPath = (path, key) => `${path}${path.length === 0 ? '' : '.'}${key}`;
+
+const formatValue = (value) => {
+  if (isObject(value)) return '[complex value]';
+  if (isString(value)) return `'${value}'`;
+  return value;
+};
 
 const generateJsonFormatOutputText = (diffTree) => {
   const genJson = key => details => ({ key, details });
@@ -7,24 +15,16 @@ const generateJsonFormatOutputText = (diffTree) => {
   const formatNodes = (nodes, pathToNodes = '') => {
     const formatNode = (node, pathToNode) => {
       const genJsonWithKey = genJson(pathToNode);
-      switch (node.nodeType) {
-        case 'unchanged':
-          return [];
-        case 'added': {
-          const { value2 } = node;
-          return genJsonWithKey(`Property '${pathToNode}' was added with value: ${formatValue(value2)}`);
-        }
-        case 'removed': {
-          return genJsonWithKey(`Property '${pathToNode}' was removed`);
-        }
-        case 'changed': {
-          const { value1, value2 } = node;
-          return genJsonWithKey(`Property '${pathToNode}' was updated. From ${formatValue(value1)} to ${formatValue(
-            value2,
-          )}`);
-        }
-        default: throw new Error('unknown node type');
-      }
+
+      const types = {
+        unchanged: () => formatNodes(node.children, pathToNode),
+        added: ({ value2 }) => genJsonWithKey(`Property '${pathToNode}' was added with value: ${formatValue(value2)}`),
+        removed: () => genJsonWithKey(`Property '${pathToNode}' was removed`),
+        changed: ({ value1, value2 }) => genJsonWithKey(`Property '${pathToNode}' was updated. From ${formatValue(value1)} to ${formatValue(
+          value2,
+        )}`),
+      };
+      return types[node.nodeType](node);
     };
 
     return nodes.map((node) => {
@@ -32,9 +32,6 @@ const generateJsonFormatOutputText = (diffTree) => {
         pathToNodes,
         node.propKey,
       );
-      if (node.children.length > 0) {
-        return formatNodes(node.children, pathToNode);
-      }
       return formatNode(node, pathToNode);
     });
   };

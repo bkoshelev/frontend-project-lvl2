@@ -7,7 +7,7 @@ const pathToFixtures = path.join(__dirname, '/__fixtures__/');
 describe('diff nested structures', () => {
   test.each`
    fileExtension |  outputFormat
-    ${'json'}    |    ${'normal'}
+    ${'json'}    |    ${'pretty'}
     ${'ini'}     |    ${'plain'}
     ${'yaml'}    |    ${'json'}
 `('gendiff file1.$fileExtension file2.$fileExtension -f $outputFormat ',

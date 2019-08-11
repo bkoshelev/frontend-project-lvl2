@@ -1,18 +1,14 @@
 import generateJsonFormatOutput from './json';
 import generatePlainFormatOutput from './plain';
-import generateNormalFormatOutput from './normal';
+import generatePrettyFormatOutput from './pretty';
 
 const getFormatter = (diffTree, format = 'defaultOption') => {
-  switch (format) {
-    case 'normal':
-      return generateNormalFormatOutput(diffTree);
-    case 'plain':
-      return generatePlainFormatOutput(diffTree);
-    case 'json':
-      return generateJsonFormatOutput(diffTree);
-    default:
-      throw Error('invalid format option');
-  }
+  const formatters = {
+    pretty: generatePrettyFormatOutput,
+    plain: generatePlainFormatOutput,
+    json: generateJsonFormatOutput,
+  };
+  return formatters[format](diffTree);
 };
 
 export default getFormatter;
