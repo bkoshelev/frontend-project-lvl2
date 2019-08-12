@@ -13,14 +13,14 @@ const generatePlainFormatOutputText = (diffTree) => {
   const formateNodes = (nodes, pathToNodes = '') => {
     const formatNode = (node, pathToNode) => {
       const types = {
-        unchanged: ({ children }) => formateNodes(children, pathToNode),
+        unchanged: () => [],
         added: ({ value2 }) => `Property '${pathToNode}' was added with value: ${formatValue(
           value2,
         )}`,
         removed: () => `Property '${pathToNode}' was removed`,
-        changed: ({ value1, value2 }) => `Property '${pathToNode}' was updated. From ${formatValue(
-          value1,
-        )} to ${formatValue(value2)}`,
+        changed: ({ value1, value2, children }) => (children.length > 0
+          ? formateNodes(children, pathToNode)
+          : `Property '${pathToNode}' was updated. From ${formatValue(value1)} to ${formatValue(value2)}`),
       };
       return types[node.nodeType](node);
     };

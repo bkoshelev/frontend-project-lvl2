@@ -1,6 +1,5 @@
 import { flattenDeep, isObject, isString } from 'lodash/fp';
 
-
 const genPath = (path, key) => `${path}${path.length === 0 ? '' : '.'}${key}`;
 
 const formatValue = (value) => {
@@ -17,12 +16,12 @@ const generateJsonFormatOutputText = (diffTree) => {
       const genJsonWithKey = genJson(pathToNode);
 
       const types = {
-        unchanged: () => formatNodes(node.children, pathToNode),
+        unchanged: () => [],
         added: ({ value2 }) => genJsonWithKey(`Property '${pathToNode}' was added with value: ${formatValue(value2)}`),
         removed: () => genJsonWithKey(`Property '${pathToNode}' was removed`),
-        changed: ({ value1, value2 }) => genJsonWithKey(`Property '${pathToNode}' was updated. From ${formatValue(value1)} to ${formatValue(
-          value2,
-        )}`),
+        changed: ({ value1, value2, children }) => (children.length > 0
+          ? formatNodes(node.children, pathToNode)
+          : genJsonWithKey(`Property '${pathToNode}' was updated. From ${formatValue(value1)} to ${formatValue(value2)}`)),
       };
       return types[node.nodeType](node);
     };

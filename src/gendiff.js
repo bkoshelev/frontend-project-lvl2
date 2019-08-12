@@ -20,7 +20,6 @@ const identifyNodeType = (obj1, obj2, propKey) => {
   if (has(propKey, obj1) && !has(propKey, obj2)) return 'removed';
   if (!has(propKey, obj1) && has(propKey, obj2)) return 'added';
   if (obj1[propKey] === obj2[propKey]) return 'unchanged';
-  if (isObject(obj1[propKey]) && isObject(obj2[propKey])) return 'unchanged';
   if (obj1[propKey] !== obj2[propKey]) return 'changed';
   throw new Error('genTreeDiff: unknown node type');
 };
