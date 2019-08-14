@@ -1,44 +1,74 @@
 {
   "diffs": [
     {
-      "key": "common.follow",
-      "details": "Property 'common.follow' was added with value: false"
+      "event": "added",
+      "oldValue": null,
+      "newValue": false,
+      "path": "common.follow"
     },
     {
-      "key": "common.setting2",
-      "details": "Property 'common.setting2' was removed"
+      "event": "removed",
+      "oldValue": "200",
+      "newValue": null,
+      "path": "common.setting2"
     },
     {
-      "key": "common.setting3",
-      "details": "Property 'common.setting3' was updated. From true to [complex value]"
+      "event": "changed",
+      "oldValue": true,
+      "newValue": {
+        "key": "value"
+      },
+      "path": "common.setting3"
     },
     {
-      "key": "common.setting4",
-      "details": "Property 'common.setting4' was added with value: 'blah blah'"
+      "event": "added",
+      "oldValue": null,
+      "newValue": "blah blah",
+      "path": "common.setting4"
     },
     {
-      "key": "common.setting5",
-      "details": "Property 'common.setting5' was added with value: [complex value]"
+      "event": "added",
+      "oldValue": null,
+      "newValue": {
+        "key5": "value5"
+      },
+      "path": "common.setting5"
     },
     {
-      "key": "common.setting6.ops",
-      "details": "Property 'common.setting6.ops' was added with value: 'vops'"
+      "event": "added",
+      "oldValue": null,
+      "newValue": "vops",
+      "path": "common.setting6.ops"
     },
     {
-      "key": "group1.baz",
-      "details": "Property 'group1.baz' was updated. From 'bas' to 'bars'"
+      "event": "changed",
+      "oldValue": "bas",
+      "newValue": "bars",
+      "path": "group1.baz"
     },
     {
-      "key": "group1.nest",
-      "details": "Property 'group1.nest' was updated. From [complex value] to 'str'"
+      "event": "changed",
+      "oldValue": {
+        "key": "value"
+      },
+      "newValue": "str",
+      "path": "group1.nest"
     },
     {
-      "key": "group2",
-      "details": "Property 'group2' was removed"
+      "event": "removed",
+      "oldValue": {
+        "abc": "12345"
+      },
+      "newValue": null,
+      "path": "group2"
     },
     {
-      "key": "group3",
-      "details": "Property 'group3' was added with value: [complex value]"
+      "event": "added",
+      "oldValue": null,
+      "newValue": {
+        "fee": "100500"
+      },
+      "path": "group3"
     }
   ]
 }
