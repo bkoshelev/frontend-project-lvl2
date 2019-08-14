@@ -13,20 +13,20 @@ const generatePlainFormatOutputText = (diffTree) => {
   const formateNodes = (nodes, pathToNodes = '') => {
     const formatNode = (node, pathToNode) => {
       const types = {
+        nested: ({ children }) => formateNodes(children, pathToNode),
         unchanged: () => [],
-        added: ({ value2 }) => `Property '${pathToNode}' was added with value: ${formatValue(
+        added: ({ meta: { value2 } }) => `Property '${pathToNode}' was added with value: ${formatValue(
           value2,
         )}`,
         removed: () => `Property '${pathToNode}' was removed`,
-        changed: ({ value1, value2, children }) => (children.length > 0
-          ? formateNodes(children, pathToNode)
-          : `Property '${pathToNode}' was updated. From ${formatValue(value1)} to ${formatValue(value2)}`),
+
+        changed: ({ meta: { value1, value2 } }) => `Property '${pathToNode}' was updated. From ${formatValue(value1)} to ${formatValue(value2)}`,
       };
       return types[node.nodeType](node);
     };
 
     return nodes.map((node) => {
-      const pathToNode = genPath(pathToNodes, node.propKey);
+      const pathToNode = genPath(pathToNodes, node.meta.propKey);
       return formatNode(node, pathToNode);
     });
   };

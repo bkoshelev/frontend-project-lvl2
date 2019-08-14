@@ -3,70 +3,62 @@ import join from 'lodash/fp/join';
 
 const sp = count => ' '.repeat(count);
 
-const nodeTypes = {
-  unchanged: {
-    visualChar: ' ',
-    selectedValue: 'value1',
-  },
-  added: {
-    visualChar: '+',
-    selectedValue: 'value2',
-  },
-  removed: {
-    visualChar: '-',
-    selectedValue: 'value1',
-  },
+const stringlifyBraces = (key, spaceIndent, visualChar) => {
+  const openBrace = [
+    `${sp(spaceIndent + 1)}`,
+    `${visualChar}`,
+    `${key}:`,
+  ].join(' ');
+
+  return {
+    openBrace,
+    closeBrace: `${sp(spaceIndent + 4)}}`,
+  };
 };
 
-const stringlifyNode = (node, level) => {
-  if (node.nodeType === 'changed') {
-    if (node.children.length > 0) {
-      return stringlifyNode({ ...node, nodeType: 'unchanged' }, level);
-    }
+const stringlifyProp = (propKey, propValue, spaceIndent, visualChar) => {
+  const { openBrace, closeBrace } = stringlifyBraces(propKey, spaceIndent, visualChar);
+
+  if (isObject(propValue)) {
+    const content = Object.entries(propValue)
+      .map(([key, value]) => `${sp(spaceIndent + 8)}${key}: ${value}`);
+
     return [
-      stringlifyNode({ ...node, nodeType: 'removed' }, level),
-      stringlifyNode({ ...node, nodeType: 'added' }, level),
+      [openBrace, ' {'].join(''),
+      content,
+      closeBrace,
     ];
   }
-  if (Object.keys(nodeTypes).includes(node.nodeType)) {
-    const propValue = node[nodeTypes[node.nodeType].selectedValue];
-    const openBraceIndent = [
-      `${sp(level + 1)}`,
-      `${nodeTypes[node.nodeType].visualChar}`,
-      `${node.propKey}: `,
-    ].join(' ');
 
-    if (node.children.length > 0) {
-      const openBrace = `${openBraceIndent}{`;
-      const content = node.children.map(child => stringlifyNode(child, level + 4));
-      const closeBrace = `${sp(level + 4)}}`;
-
-      return [
-        openBrace,
-        content,
-        closeBrace,
-      ];
-    }
-
-    if (isObject(propValue)) {
-      const openBrace = `${openBraceIndent}{`;
-      const content = Object.entries(propValue)
-        .map(([key, value]) => `${sp(level + 8)}${key}: ${value}`);
-      const closeBrace = `${sp(level + 4)}}`;
-
-      return [
-        openBrace,
-        content,
-        closeBrace,
-      ];
-    }
-
-    return `${openBraceIndent}${propValue}`;
-  }
-  throw new Error('unknown node type');
+  return [openBrace, ' ', propValue].join('');
 };
 
-const stringlifyNodes = (nodes, level = 0) => nodes.map(node => stringlifyNode(node, level));
+
+const stringlifyNodes = (nodes, spaceIndent = 0) => {
+  const stringlifyNode = (node) => {
+    const nodeTypes = {
+      nested: ({ children, meta: { propKey } }) => {
+        const { openBrace, closeBrace } = stringlifyBraces(propKey, spaceIndent, ' ');
+
+        return [
+          [openBrace, ' {'].join(''),
+          stringlifyNodes(children, spaceIndent + 4),
+          closeBrace,
+        ];
+      },
+      changed: ({ meta: { propKey, value1, value2 } }) => [
+        stringlifyProp(propKey, value1, spaceIndent, '-'),
+        stringlifyProp(propKey, value2, spaceIndent, '+'),
+      ],
+      unchanged: ({ meta: { propKey, value1 } }) => stringlifyProp(propKey, value1, spaceIndent, ' '),
+      added: ({ meta: { propKey, value2 } }) => stringlifyProp(propKey, value2, spaceIndent, '+'),
+      removed: ({ meta: { propKey, value1 } }) => stringlifyProp(propKey, value1, spaceIndent, '-'),
+    };
+
+    return nodeTypes[node.nodeType](node);
+  };
+  return nodes.map(node => stringlifyNode(node));
+};
 
 const stringlifyDiffTree = diffTree => ['{', stringlifyNodes(diffTree), '}'];
 

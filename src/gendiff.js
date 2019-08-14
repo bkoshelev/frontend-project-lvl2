@@ -16,32 +16,34 @@ const readFile = (filePath) => {
   return readFileSync(resolve(filePath), 'utf8');
 };
 
-const identifyNodeType = (obj1, obj2, propKey) => {
-  if (has(propKey, obj1) && !has(propKey, obj2)) return 'removed';
-  if (!has(propKey, obj1) && has(propKey, obj2)) return 'added';
-  if (obj1[propKey] === obj2[propKey]) return 'unchanged';
-  if (obj1[propKey] !== obj2[propKey]) return 'changed';
-  throw new Error('genTreeDiff: unknown node type');
-};
 
 const generateTreeDiffBetweenObjects = (comparedObj1, comparedObj2) => {
+  const generateNodeByType = (obj1, obj2, propKey) => {
+    const generateNode = (nodeType, value1, value2, children) => ({
+      nodeType,
+      meta: {
+        propKey,
+        value1,
+        value2,
+      },
+      children,
+    });
+
+    if (has(propKey, obj1) && !has(propKey, obj2)) return generateNode('removed', obj1[propKey], null, []);
+    if (!has(propKey, obj1) && has(propKey, obj2)) return generateNode('added', null, obj2[propKey], []);
+    if (isObject(obj1[propKey]) && isObject(obj2[propKey])) {
+      const children = generateTreeDiffBetweenObjects(obj1[propKey], obj2[propKey]);
+      return generateNode('nested', obj1[propKey], obj2[propKey], children);
+    }
+    if (obj1[propKey] === obj2[propKey]) return generateNode('unchanged', obj1[propKey], obj2[propKey], []);
+    if (obj1[propKey] !== obj2[propKey]) return generateNode('changed', obj1[propKey], obj2[propKey], []);
+    throw new Error('genTreeDiff: unknown node type');
+  };
   const allKeysInObjects = union(keys(comparedObj1), keys(comparedObj2))
     |> sortBy(key => key);
 
   const tree = allKeysInObjects.map((currentObjPropKey) => {
-    const nodeType = identifyNodeType(comparedObj1, comparedObj2, currentObjPropKey);
-
-    const obj1PropValue = comparedObj1[currentObjPropKey];
-    const obj2PropValue = comparedObj2[currentObjPropKey];
-
-    const newNode = {
-      nodeType,
-      propKey: currentObjPropKey,
-      value1: obj1PropValue,
-      value2: obj2PropValue,
-      children: isObject(obj1PropValue) && isObject(obj2PropValue)
-        ? generateTreeDiffBetweenObjects(obj1PropValue, obj2PropValue) : [],
-    };
+    const newNode = generateNodeByType(comparedObj1, comparedObj2, currentObjPropKey);
     return newNode;
   });
   return tree;
