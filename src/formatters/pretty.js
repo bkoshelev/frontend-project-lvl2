@@ -19,45 +19,44 @@ const stringlifyBraces = (key, spaceIndent, visualChar) => {
 const stringlifyProp = (propKey, propValue, spaceIndent, visualChar) => {
   const { openBrace, closeBrace } = stringlifyBraces(propKey, spaceIndent, visualChar);
 
-  if (isObject(propValue)) {
-    const content = Object.entries(propValue)
-      .map(([key, value]) => `${sp(spaceIndent + 8)}${key}: ${value}`);
+  if (!isObject(propValue)) {
+    return [openBrace, ' ', propValue].join('');
+  }
+
+  const content = Object.entries(propValue)
+    .map(([key, value]) => `${sp(spaceIndent + 8)}${key}: ${value}`);
+
+  return [
+    [openBrace, ' {'].join(''),
+    content,
+    closeBrace,
+  ];
+};
+
+const nodeTypes = {
+  nested: ({ children, propKey }, spaceIndent) => {
+    const { openBrace, closeBrace } = stringlifyBraces(propKey, spaceIndent, ' ');
 
     return [
       [openBrace, ' {'].join(''),
-      content,
+      stringlifyNodes(children, spaceIndent + 4),
       closeBrace,
     ];
-  }
-
-  return [openBrace, ' ', propValue].join('');
+  },
+  changed: ({ propKey, value1, value2 }, spaceIndent) => [
+    stringlifyProp(propKey, value1, spaceIndent, '-'),
+    stringlifyProp(propKey, value2, spaceIndent, '+'),
+  ],
+  unchanged: ({ propKey, value1 }, spaceIndent) => stringlifyProp(propKey, value1, spaceIndent, ' '),
+  added: ({ propKey, value2 }, spaceIndent) => stringlifyProp(propKey, value2, spaceIndent, '+'),
+  removed: ({ propKey, value1 }, spaceIndent) => stringlifyProp(propKey, value1, spaceIndent, '-'),
 };
 
+const stringlifyNode = (node, spaceIndent) => nodeTypes[node.nodeType](node, spaceIndent);
 
 const stringlifyNodes = (nodes, spaceIndent = 0) => {
-  const stringlifyNode = (node) => {
-    const nodeTypes = {
-      nested: ({ children, meta: { propKey } }) => {
-        const { openBrace, closeBrace } = stringlifyBraces(propKey, spaceIndent, ' ');
-
-        return [
-          [openBrace, ' {'].join(''),
-          stringlifyNodes(children, spaceIndent + 4),
-          closeBrace,
-        ];
-      },
-      changed: ({ meta: { propKey, value1, value2 } }) => [
-        stringlifyProp(propKey, value1, spaceIndent, '-'),
-        stringlifyProp(propKey, value2, spaceIndent, '+'),
-      ],
-      unchanged: ({ meta: { propKey, value1 } }) => stringlifyProp(propKey, value1, spaceIndent, ' '),
-      added: ({ meta: { propKey, value2 } }) => stringlifyProp(propKey, value2, spaceIndent, '+'),
-      removed: ({ meta: { propKey, value1 } }) => stringlifyProp(propKey, value1, spaceIndent, '-'),
-    };
-
-    return nodeTypes[node.nodeType](node);
-  };
-  return nodes.map(node => stringlifyNode(node));
+  const string = nodes.map(node => stringlifyNode(node, spaceIndent));
+  return string;
 };
 
 const stringlifyDiffTree = diffTree => ['{', stringlifyNodes(diffTree), '}'];

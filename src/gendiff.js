@@ -16,34 +16,40 @@ const readFile = (filePath) => {
   return readFileSync(resolve(filePath), 'utf8');
 };
 
+const generateNodeByType = (nodeType, value1, value2, propKey, children) => ({
+  nodeType,
+  propKey,
+  value1,
+  value2,
+  children,
+});
+
+const generateNode = (obj1, obj2, propKey) => {
+  if (has(propKey, obj1) && !has(propKey, obj2)) {
+    return generateNodeByType('removed', obj1[propKey], null, propKey, []);
+  }
+  if (!has(propKey, obj1) && has(propKey, obj2)) {
+    return generateNodeByType('added', null, obj2[propKey], propKey, []);
+  }
+  if (isObject(obj1[propKey]) && isObject(obj2[propKey])) {
+    const children = generateTreeDiffBetweenObjects(obj1[propKey], obj2[propKey]);
+    return generateNodeByType('nested', obj1[propKey], obj2[propKey], propKey, children);
+  }
+  if (obj1[propKey] === obj2[propKey]) {
+    return generateNodeByType('unchanged', obj1[propKey], obj2[propKey], propKey, []);
+  }
+  if (obj1[propKey] !== obj2[propKey]) {
+    return generateNodeByType('changed', obj1[propKey], obj2[propKey], propKey, []);
+  }
+  throw new Error('genTreeDiff: unknown node type');
+};
 
 const generateTreeDiffBetweenObjects = (comparedObj1, comparedObj2) => {
-  const generateNodeByType = (obj1, obj2, propKey) => {
-    const generateNode = (nodeType, value1, value2, children) => ({
-      nodeType,
-      meta: {
-        propKey,
-        value1,
-        value2,
-      },
-      children,
-    });
-
-    if (has(propKey, obj1) && !has(propKey, obj2)) return generateNode('removed', obj1[propKey], null, []);
-    if (!has(propKey, obj1) && has(propKey, obj2)) return generateNode('added', null, obj2[propKey], []);
-    if (isObject(obj1[propKey]) && isObject(obj2[propKey])) {
-      const children = generateTreeDiffBetweenObjects(obj1[propKey], obj2[propKey]);
-      return generateNode('nested', obj1[propKey], obj2[propKey], children);
-    }
-    if (obj1[propKey] === obj2[propKey]) return generateNode('unchanged', obj1[propKey], obj2[propKey], []);
-    if (obj1[propKey] !== obj2[propKey]) return generateNode('changed', obj1[propKey], obj2[propKey], []);
-    throw new Error('genTreeDiff: unknown node type');
-  };
   const allKeysInObjects = union(keys(comparedObj1), keys(comparedObj2))
     |> sortBy(key => key);
 
   const tree = allKeysInObjects.map((currentObjPropKey) => {
-    const newNode = generateNodeByType(comparedObj1, comparedObj2, currentObjPropKey);
+    const newNode = generateNode(comparedObj1, comparedObj2, currentObjPropKey);
     return newNode;
   });
   return tree;
