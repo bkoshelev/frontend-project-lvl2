@@ -7,8 +7,8 @@ const parsers = {
   '.ini': parseIni,
 };
 
-const parseFileContent = (fileExt, textToParse) => {
-  const parsedData = parsers[fileExt](textToParse);
+const parseFileContent = (fileExt, content) => {
+  const parsedData = parsers[fileExt](content);
   return parsedData;
 };
 
