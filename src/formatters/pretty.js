@@ -3,66 +3,54 @@ import join from 'lodash/fp/join';
 
 const sp = count => ' '.repeat(count);
 
-const stringlifyBraces = (key, spaceIndent, visualChar) => {
+const stringifyObject = (level, content) => [
+  '{',
+  content,
+  [sp(level * 4), '}'].join(''),
+].join('\n');
+
+const stringifyProp = (propKey, propValue, level, visualChar = '') => {
   const openBrace = [
-    `${sp(spaceIndent + 1)}`,
+    `${sp(level * 4 - (visualChar ? 2 : 0))}`,
     `${visualChar}`,
-    `${key}:`,
-  ].join(' ');
-
-  return {
-    openBrace,
-    closeBrace: `${sp(spaceIndent + 4)}}`,
-  };
-};
-
-const stringlifyProp = (propKey, propValue, spaceIndent, visualChar) => {
-  const { openBrace, closeBrace } = stringlifyBraces(propKey, spaceIndent, visualChar);
+    `${propKey}: `,
+  ].join('');
 
   if (!isObject(propValue)) {
-    return [openBrace, ' ', propValue].join('');
+    return [openBrace, propValue].join('');
   }
 
   const content = Object.entries(propValue)
-    .map(([key, value]) => `${sp(spaceIndent + 8)}${key}: ${value}`);
+    .map(([key, value]) => stringifyProp(key, value, level + 1)).join('\n');
 
-  return [
-    [openBrace, ' {'].join(''),
-    content,
-    closeBrace,
-  ];
+  return [openBrace, stringifyObject(level, content)].join('');
 };
 
 const nodeTypes = {
-  nested: ({ children, propKey }, spaceIndent) => {
-    const { openBrace, closeBrace } = stringlifyBraces(propKey, spaceIndent, ' ');
-
-    return [
-      [openBrace, ' {'].join(''),
-      stringlifyNodes(children, spaceIndent + 4),
-      closeBrace,
-    ];
+  nested: ({ children, propKey }, level) => {
+    const content = stringifyNodes(children, level + 1);
+    return stringifyProp(propKey, stringifyObject(level + 1, content), level + 1);
   },
-  changed: ({ propKey, value1, value2 }, spaceIndent) => [
-    stringlifyProp(propKey, value1, spaceIndent, '-'),
-    stringlifyProp(propKey, value2, spaceIndent, '+'),
-  ],
-  unchanged: ({ propKey, value1 }, spaceIndent) => stringlifyProp(propKey, value1, spaceIndent, ' '),
-  added: ({ propKey, value2 }, spaceIndent) => stringlifyProp(propKey, value2, spaceIndent, '+'),
-  removed: ({ propKey, value1 }, spaceIndent) => stringlifyProp(propKey, value1, spaceIndent, '-'),
+  changed: ({ propKey, value1, value2 }, level) => [
+    stringifyProp(propKey, value1, level + 1, '- '),
+    stringifyProp(propKey, value2, level + 1, '+ '),
+  ].join('\n'),
+  unchanged: ({ propKey, value1 }, level) => stringifyProp(propKey, value1, level + 1),
+  added: ({ propKey, value2 }, level) => stringifyProp(propKey, value2, level + 1, '+ '),
+  removed: ({ propKey, value1 }, level) => stringifyProp(propKey, value1, level + 1, '- '),
 };
 
-const stringlifyNode = (node, spaceIndent) => nodeTypes[node.nodeType](node, spaceIndent);
+const stringifyNode = (node, level) => nodeTypes[node.nodeType](node, level);
 
-const stringlifyNodes = (nodes, spaceIndent = 0) => {
-  const string = nodes.map(node => stringlifyNode(node, spaceIndent));
+const stringifyNodes = (nodes, level = 0) => {
+  const string = nodes.map(node => stringifyNode(node, level)).join('\n');
   return string;
 };
 
-const stringlifyDiffTree = diffTree => ['{', stringlifyNodes(diffTree), '}'];
+const stringifyDiffTree = diffTree => ['{', stringifyNodes(diffTree), '}'];
 
 const generatePrettyFormatOutput = diffTree => diffTree
-  |> stringlifyDiffTree
+  |> stringifyDiffTree
   |> flattenDeep
   |> join('\n');
 
