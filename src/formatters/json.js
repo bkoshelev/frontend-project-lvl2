@@ -1,10 +1,4 @@
 
-const generateJsonFormatOutputText = (diffTree) => {
-  const outputText = {
-    diffs: diffTree,
-  };
-
-  return JSON.stringify(outputText);
-};
+const generateJsonFormatOutputText = diffTree => JSON.stringify(diffTree);
 
 export default generateJsonFormatOutputText;
